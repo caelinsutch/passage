@@ -1,0 +1,35 @@
+overwrite: true
+schema:
+  - ./src/GraphQL/**/*.ts
+documents:
+  -  "src/**/*.ts*"
+  - "pages/**/*.ts*"
+hooks:
+  afterAllFileWrite:
+    - prettier --write
+generates:
+  src/Generated/shared.ts:
+    plugins:
+      - "typescript"
+      - "typescript-operations"
+      - "typescript-react-apollo"
+      - add:
+          content: '/* eslint-disable */'
+    config:
+      reactApolloVersion: 2
+      withHooks: true # We will be using React Hooks so we disable React Components
+      skipTypename: true
+      apolloReactCommonImportFrom: "@apollo/client"
+      apolloReactHooksImportFrom: "@apollo/client"
+  src/Generated/backend.ts:
+    plugins:
+      - "typescript-mongodb"
+      - "typescript-resolvers"
+      - add:
+          content: '/* eslint-disable */'
+    config:
+      enumsAsString: true
+      skipTypename: true
+  ./graphql.schema.json:
+    plugins:
+      - "introspection"
