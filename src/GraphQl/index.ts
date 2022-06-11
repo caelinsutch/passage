@@ -1,7 +1,7 @@
 import { makeExecutableSchema } from "@graphql-tools/schema";
 import { gql } from "apollo-server-micro";
 import { DIRECTIVES } from "@graphql-codegen/typescript-mongodb";
-import userGraphql from "./user.graphql";
+import userGraphql from "./User/user.graphql";
 
 const Query = gql`
   type Query {

@@ -5,7 +5,7 @@ import { gql } from "apollo-server-micro";
 export const graphql = gql`
   query HomeQuery($id: ID!) {
     user(id: $id) {
-      id
+      _id
     }
   }
 `;

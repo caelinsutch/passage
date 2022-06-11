@@ -1,8 +1,9 @@
 import { gql } from "apollo-server-micro";
 
 const userGraphql = gql`
-  type User {
-    id: ID!
+  type User @entity {
+    _id: ID! @id
+    firebaseId: String! @column
   }
 `;
 

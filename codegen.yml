@@ -13,6 +13,8 @@ generates:
       - "typescript"
       - "typescript-operations"
       - "typescript-react-apollo"
+      - "typescript-mongodb"
+      - "typescript-resolvers"
       - add:
           content: '/* eslint-disable */'
     config:
@@ -21,15 +23,8 @@ generates:
       skipTypename: true
       apolloReactCommonImportFrom: "@apollo/client"
       apolloReactHooksImportFrom: "@apollo/client"
-  src/Generated/backend.ts:
-    plugins:
-      - "typescript-mongodb"
-      - "typescript-resolvers"
-      - add:
-          content: '/* eslint-disable */'
-    config:
       enumsAsString: true
-      skipTypename: true
+      useIndexSignature: true
   ./graphql.schema.json:
     plugins:
       - "introspection"
