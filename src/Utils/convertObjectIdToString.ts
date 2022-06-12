@@ -1,15 +1,15 @@
 import { ObjectId } from "mongodb";
 
 type DbObject = {
-  _id: ObjectId;
+  _id: ObjectId | string;
 } & Record<string, any>;
 
 const convertObjectIdToString = <T extends DbObject>({
   _id,
   dbObject,
-}: T): Omit<T, "_id"> & { _id: string } => ({
+}: T): { _id: any } & Omit<T, "_id"> => ({
   ...dbObject,
-  _id: _id.toHexString(),
+  _id: typeof _id === "string" ? _id : _id.toHexString(),
 });
 
 export default convertObjectIdToString;

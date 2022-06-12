@@ -25,6 +25,11 @@ generates:
       apolloReactHooksImportFrom: "@apollo/client"
       enumsAsString: true
       useIndexSignature: true
+      mappers:
+        UserCandidateData: UserCandidateDataDbObject
+        UserEducation: UserEducationDbObject
+        UserExperience: UserExperienceDbObject
+        User: UserDbObject
   ./graphql.schema.json:
     plugins:
       - "introspection"

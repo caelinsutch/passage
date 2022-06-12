@@ -1,21 +1,38 @@
 import { ApolloServer } from "apollo-server-micro";
-import { NextApiRequest, NextApiResponse } from "next";
+import Cors from "micro-cors";
+import { getAuth } from "firebase-admin/lib/auth";
 import typeDefs from "../../src/GraphQl";
 import { resolvers } from "@/Api";
 
-const apolloServer = new ApolloServer({
+const cors = Cors();
+
+const server = new ApolloServer({
   typeDefs,
   resolvers,
+  context: async ({ req }) => {
+    const token = req.headers.authorization;
+    if (!token) return {};
+    const decodedToken = await getAuth().verifyIdToken(token);
+    return {
+      firebaseId: decodedToken.uid,
+    };
+  },
 });
 
-const startServer = apolloServer.start();
+const startServer = server.start();
 
-const graphql = async (req: NextApiRequest, res: NextApiResponse) => {
-  await startServer;
-  await apolloServer.createHandler({
-    path: "/api/graphql",
-  })(req, res);
-};
+const graphql = cors((req, res) => {
+  if (req.method === "OPTIONS") {
+    res.end();
+    return false;
+  }
+
+  return startServer.then(() =>
+    server.createHandler({
+      path: "/api/graphql",
+    })(req, res)
+  );
+});
 
 export const config = {
   api: {

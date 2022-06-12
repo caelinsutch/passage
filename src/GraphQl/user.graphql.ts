@@ -5,16 +5,18 @@ const userGraphql = gql`
     _id: ID! @id
     firebaseId: String! @column
     name: String! @column
+    username: String! @column
     oneLiner: String! @column
     bio: String! @column
     email: String! @column
-    candidateData: UserCandidateData! @embedded
+    candidateData: UserCandidateData @embedded
     education: [UserEducation!]! @embedded
     experience: [UserExperience!]! @embedded
-    linkedin: String! @column
-    twitter: String! @column
-    website: String! @column
-    github: String! @column
+    linkedin: String @column
+    twitter: String @column
+    website: String @column
+    github: String @column
+    referredFrom: ReferralMethod @column
   }
 
   type UserCandidateData @entity(embedded: true) {
@@ -45,11 +47,22 @@ const userGraphql = gql`
   }
 
   input CreateUserInput {
+    firebaseId: String!
+    phone: String!
     name: String!
+    oneLiner: String!
+    username: String!
+    bio: String!
+    email: String!
   }
 
   input UpdateUserInput {
+    firebaseId: String
     name: String
+    username: String
+    oneLiner: String
+    bio: String
+    email: String
   }
 `;
 

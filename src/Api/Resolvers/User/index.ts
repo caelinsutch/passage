@@ -1,6 +1,2 @@
-import userQuery from "./Queries";
-import { QueryResolvers } from "@/Generated";
-
-export const userQueries: QueryResolvers = {
-  user: userQuery,
-};
+export { default as userQueries } from "./Queries";
+export { default as userMutations } from "./Mutations";

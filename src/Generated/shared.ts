@@ -238,7 +238,13 @@ export enum Country {
 }
 
 export type CreateUserInput = {
+  bio: Scalars["String"];
+  email: Scalars["String"];
+  firebaseId: Scalars["String"];
   name: Scalars["String"];
+  oneLiner: Scalars["String"];
+  phone: Scalars["String"];
+  username: Scalars["String"];
 };
 
 export enum Ethnicity {
@@ -263,10 +269,16 @@ export enum Gender {
 
 export type Mutation = {
   createUser: User;
+  updateUser: User;
 };
 
 export type MutationCreateUserArgs = {
   user: CreateUserInput;
+};
+
+export type MutationUpdateUserArgs = {
+  user: UpdateUserInput;
+  userId: Scalars["ID"];
 };
 
 export type Query = {
@@ -276,6 +288,16 @@ export type Query = {
 export type QueryUserArgs = {
   id: Scalars["ID"];
 };
+
+export enum ReferralMethod {
+  Event = "Event",
+  Founder = "Founder",
+  Linkedin = "Linkedin",
+  Media = "Media",
+  Other = "Other",
+  Twitter = "Twitter",
+  WordOfMouth = "WordOfMouth",
+}
 
 export enum Roles {
   Account = "Account",
@@ -410,23 +432,30 @@ export enum Skill {
 }
 
 export type UpdateUserInput = {
+  bio?: InputMaybe<Scalars["String"]>;
+  email?: InputMaybe<Scalars["String"]>;
+  firebaseId?: InputMaybe<Scalars["String"]>;
   name?: InputMaybe<Scalars["String"]>;
+  oneLiner?: InputMaybe<Scalars["String"]>;
+  username?: InputMaybe<Scalars["String"]>;
 };
 
 export type User = {
   _id: Scalars["ID"];
   bio: Scalars["String"];
-  candidateData: UserCandidateData;
+  candidateData?: Maybe<UserCandidateData>;
   education: Array<UserEducation>;
   email: Scalars["String"];
   experience: Array<UserExperience>;
   firebaseId: Scalars["String"];
-  github: Scalars["String"];
-  linkedin: Scalars["String"];
+  github?: Maybe<Scalars["String"]>;
+  linkedin?: Maybe<Scalars["String"]>;
   name: Scalars["String"];
   oneLiner: Scalars["String"];
-  twitter: Scalars["String"];
-  website: Scalars["String"];
+  referredFrom?: Maybe<ReferralMethod>;
+  twitter?: Maybe<Scalars["String"]>;
+  username: Scalars["String"];
+  website?: Maybe<Scalars["String"]>;
 };
 
 export type UserCandidateData = {
@@ -522,17 +551,19 @@ import { ObjectId } from "mongodb";
 export type UserDbObject = {
   _id: ObjectId;
   bio: string;
-  candidateData: UserCandidateDataDbObject;
+  candidateData?: Maybe<UserCandidateDataDbObject>;
   education: Array<UserEducationDbObject>;
   email: string;
   experience: Array<UserExperienceDbObject>;
   firebaseId: string;
-  github: string;
-  linkedin: string;
+  github?: Maybe<string>;
+  linkedin?: Maybe<string>;
   name: string;
   oneLiner: string;
-  twitter: string;
-  website: string;
+  referredFrom?: Maybe<string>;
+  twitter?: Maybe<string>;
+  username: string;
+  website?: Maybe<string>;
 };
 
 export type UserCandidateDataDbObject = {
@@ -680,17 +711,18 @@ export type ResolversTypes = ResolversObject<{
   Ethnicity: Ethnicity;
   Gender: Gender;
   Mutation: ResolverTypeWrapper<{}>;
-  Query: ResolverTypeWrapper<{}>;
   ID: ResolverTypeWrapper<Scalars["ID"]>;
+  Query: ResolverTypeWrapper<{}>;
+  ReferralMethod: ReferralMethod;
   Roles: Roles;
   Sector: Sector;
   Skill: Skill;
   UpdateUserInput: UpdateUserInput;
-  User: ResolverTypeWrapper<User>;
-  UserCandidateData: ResolverTypeWrapper<UserCandidateData>;
+  User: ResolverTypeWrapper<UserDbObject>;
+  UserCandidateData: ResolverTypeWrapper<UserCandidateDataDbObject>;
   Int: ResolverTypeWrapper<Scalars["Int"]>;
-  UserEducation: ResolverTypeWrapper<UserEducation>;
-  UserExperience: ResolverTypeWrapper<UserExperience>;
+  UserEducation: ResolverTypeWrapper<UserEducationDbObject>;
+  UserExperience: ResolverTypeWrapper<UserExperienceDbObject>;
   Boolean: ResolverTypeWrapper<Scalars["Boolean"]>;
 }>;
 
@@ -700,14 +732,14 @@ export type ResolversParentTypes = ResolversObject<{
   String: Scalars["String"];
   CreateUserInput: CreateUserInput;
   Mutation: {};
-  Query: {};
   ID: Scalars["ID"];
+  Query: {};
   UpdateUserInput: UpdateUserInput;
-  User: User;
-  UserCandidateData: UserCandidateData;
+  User: UserDbObject;
+  UserCandidateData: UserCandidateDataDbObject;
   Int: Scalars["Int"];
-  UserEducation: UserEducation;
-  UserExperience: UserExperience;
+  UserEducation: UserEducationDbObject;
+  UserExperience: UserExperienceDbObject;
   Boolean: Scalars["Boolean"];
 }>;
 
@@ -808,6 +840,12 @@ export type MutationResolvers<
     ContextType,
     RequireFields<MutationCreateUserArgs, "user">
   >;
+  updateUser?: Resolver<
+    ResolversTypes["User"],
+    ParentType,
+    ContextType,
+    RequireFields<MutationUpdateUserArgs, "user" | "userId">
+  >;
 }>;
 
 export type QueryResolvers<
@@ -829,7 +867,7 @@ export type UserResolvers<
   _id?: Resolver<ResolversTypes["ID"], ParentType, ContextType>;
   bio?: Resolver<ResolversTypes["String"], ParentType, ContextType>;
   candidateData?: Resolver<
-    ResolversTypes["UserCandidateData"],
+    Maybe<ResolversTypes["UserCandidateData"]>,
     ParentType,
     ContextType
   >;
@@ -845,12 +883,18 @@ export type UserResolvers<
     ContextType
   >;
   firebaseId?: Resolver<ResolversTypes["String"], ParentType, ContextType>;
-  github?: Resolver<ResolversTypes["String"], ParentType, ContextType>;
-  linkedin?: Resolver<ResolversTypes["String"], ParentType, ContextType>;
+  github?: Resolver<Maybe<ResolversTypes["String"]>, ParentType, ContextType>;
+  linkedin?: Resolver<Maybe<ResolversTypes["String"]>, ParentType, ContextType>;
   name?: Resolver<ResolversTypes["String"], ParentType, ContextType>;
   oneLiner?: Resolver<ResolversTypes["String"], ParentType, ContextType>;
-  twitter?: Resolver<ResolversTypes["String"], ParentType, ContextType>;
-  website?: Resolver<ResolversTypes["String"], ParentType, ContextType>;
+  referredFrom?: Resolver<
+    Maybe<ResolversTypes["ReferralMethod"]>,
+    ParentType,
+    ContextType
+  >;
+  twitter?: Resolver<Maybe<ResolversTypes["String"]>, ParentType, ContextType>;
+  username?: Resolver<ResolversTypes["String"], ParentType, ContextType>;
+  website?: Resolver<Maybe<ResolversTypes["String"]>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 

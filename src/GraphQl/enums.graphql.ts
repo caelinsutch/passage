@@ -360,6 +360,16 @@ const enums = gql`
     Zambia
     Zimbabwe
   }
+
+  enum ReferralMethod {
+    WordOfMouth
+    Linkedin
+    Twitter
+    Media
+    Founder
+    Event
+    Other
+  }
 `;
 
 export default enums;
