@@ -17,6 +17,7 @@
     "baseUrl": ".",
     "paths": {
       "@/Api/*": ["./src/Api/*"],
+      "@/Api": ["./src/Api"],
       "@/Generated": ["src/Generated"],
       "@/Utils": ["src/Utils"],
     }

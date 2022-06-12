@@ -1,14 +1,7 @@
 import { ApolloServer } from "apollo-server-micro";
 import { NextApiRequest, NextApiResponse } from "next";
 import typeDefs from "../../src/GraphQl";
-
-const resolvers = {
-  Query: {
-    getUser: () => ({
-      id: "Foo",
-    }),
-  },
-};
+import { resolvers } from "@/Api";
 
 const apolloServer = new ApolloServer({
   typeDefs,

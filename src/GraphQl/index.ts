@@ -1,16 +1,11 @@
 import { makeExecutableSchema } from "@graphql-tools/schema";
-import { gql } from "apollo-server-micro";
 import { DIRECTIVES } from "@graphql-codegen/typescript-mongodb";
-import userGraphql from "./User/user.graphql";
-
-const Query = gql`
-  type Query {
-    user(id: ID!): User
-  }
-`;
+import userGraphql from "./user.graphql";
+import query from "./query.graphql";
+import enums from "./enums.graphql";
 
 const typeDefs = makeExecutableSchema({
-  typeDefs: [Query, userGraphql, DIRECTIVES],
+  typeDefs: [DIRECTIVES, query, userGraphql, enums],
   resolvers: {},
 });
 
