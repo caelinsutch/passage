@@ -23,10 +23,10 @@ const EnterCode: React.FC<EnterCodeProps> = ({ isLoading, onSubmit }) => {
     <form onSubmit={handleSubmit(onSubmit)}>
       <FormInput
         label="Enter Code"
-        placeholder="XXXXXXX"
         inputGroupProps={{ size: "lg" }}
         error={errors?.code?.message}
         inputProps={{
+          placeholder: "XXXXXX",
           ...register("code", {
             required: {
               value: true,
@@ -44,7 +44,7 @@ const EnterCode: React.FC<EnterCodeProps> = ({ isLoading, onSubmit }) => {
         }}
       />
       <Button mt={8} colorScheme="purple" type="submit" isLoading={isLoading}>
-        Enter Code
+        YOU"RE IN
       </Button>
     </form>
   );

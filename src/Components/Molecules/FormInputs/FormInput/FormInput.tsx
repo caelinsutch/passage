@@ -3,6 +3,7 @@ import {
   FormControl,
   FormControlProps,
   FormErrorMessage,
+  FormHelperText,
   FormLabel,
   Input,
   InputGroup,
@@ -14,6 +15,7 @@ import {
 type FormInputProps = {
   label?: string;
   error?: string;
+  helperText?: string;
   inputGroupProps?: InputGroupProps;
   leftElement?: React.ReactNode;
   inputProps: InputProps;
@@ -21,6 +23,7 @@ type FormInputProps = {
 
 const FormInput: React.FC<FormInputProps> = ({
   label,
+  helperText,
   error,
   inputProps,
   inputGroupProps,
@@ -35,7 +38,8 @@ const FormInput: React.FC<FormInputProps> = ({
       )}
       <Input {...inputProps} />
     </InputGroup>
-    <FormErrorMessage>{error}</FormErrorMessage>
+    {Boolean(helperText) && <FormHelperText>{helperText}</FormHelperText>}
+    {Boolean(error) && <FormErrorMessage>{error}</FormErrorMessage>}
   </FormControl>
 );
 

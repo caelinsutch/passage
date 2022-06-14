@@ -4,17 +4,22 @@ import { getAuth } from "firebase-admin/lib/auth";
 import typeDefs from "../../src/GraphQl";
 import { resolvers } from "@/Api";
 
+export type GraphQlContext = {
+  firebaseId?: string;
+};
+
 const cors = Cors();
 
 const server = new ApolloServer({
   typeDefs,
   resolvers,
-  context: async ({ req }) => {
+  context: async ({ req }): Promise<GraphQlContext> => {
     const token = req.headers.authorization;
     if (!token) return {};
-    const decodedToken = await getAuth().verifyIdToken(token);
+    const { uid: firebaseId } = await getAuth().verifyIdToken(token);
+
     return {
-      firebaseId: decodedToken.uid,
+      firebaseId,
     };
   },
 });

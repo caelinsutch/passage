@@ -1,5 +1,6 @@
 /* eslint-disable */
 import { GraphQLResolveInfo } from "graphql";
+import { GraphQlContext } from "pages/api/graphql";
 import gql from "graphql-tag";
 import * as ApolloReactCommon from "@apollo/client";
 import * as ApolloReactHooks from "@apollo/client";
@@ -237,16 +238,6 @@ export enum Country {
   Zimbabwe = "Zimbabwe",
 }
 
-export type CreateUserInput = {
-  bio: Scalars["String"];
-  email: Scalars["String"];
-  firebaseId: Scalars["String"];
-  name: Scalars["String"];
-  oneLiner: Scalars["String"];
-  phone: Scalars["String"];
-  username: Scalars["String"];
-};
-
 export enum Ethnicity {
   AfricanAmerican = "AfricanAmerican",
   AmericanIndian = "AmericanIndian",
@@ -261,19 +252,37 @@ export enum Ethnicity {
   White = "White",
 }
 
+export type FinalizeUserInput = {
+  bio: Scalars["String"];
+  email: Scalars["String"];
+  name: Scalars["String"];
+  oneLiner: Scalars["String"];
+  username: Scalars["String"];
+};
+
 export enum Gender {
   Female = "Female",
   Male = "Male",
   Other = "Other",
 }
 
+export type InitializeUserInput = {
+  firebaseId: Scalars["String"];
+  phone: Scalars["String"];
+};
+
 export type Mutation = {
-  createUser: User;
+  finalizeUser: User;
+  initializeUser: User;
   updateUser: User;
 };
 
-export type MutationCreateUserArgs = {
-  user: CreateUserInput;
+export type MutationFinalizeUserArgs = {
+  user: FinalizeUserInput;
+};
+
+export type MutationInitializeUserArgs = {
+  user?: InputMaybe<InitializeUserInput>;
 };
 
 export type MutationUpdateUserArgs = {
@@ -283,10 +292,15 @@ export type MutationUpdateUserArgs = {
 
 export type Query = {
   user?: Maybe<User>;
+  userByFirebaseId?: Maybe<User>;
 };
 
 export type QueryUserArgs = {
   id: Scalars["ID"];
+};
+
+export type QueryUserByFirebaseIdArgs = {
+  firebaseId: Scalars["ID"];
 };
 
 export enum ReferralMethod {
@@ -442,19 +456,19 @@ export type UpdateUserInput = {
 
 export type User = {
   _id: Scalars["ID"];
-  bio: Scalars["String"];
+  bio?: Maybe<Scalars["String"]>;
   candidateData?: Maybe<UserCandidateData>;
   education: Array<UserEducation>;
-  email: Scalars["String"];
+  email?: Maybe<Scalars["String"]>;
   experience: Array<UserExperience>;
   firebaseId: Scalars["String"];
   github?: Maybe<Scalars["String"]>;
   linkedin?: Maybe<Scalars["String"]>;
-  name: Scalars["String"];
-  oneLiner: Scalars["String"];
+  name?: Maybe<Scalars["String"]>;
+  oneLiner?: Maybe<Scalars["String"]>;
   referredFrom?: Maybe<ReferralMethod>;
   twitter?: Maybe<Scalars["String"]>;
-  username: Scalars["String"];
+  username?: Maybe<Scalars["String"]>;
   website?: Maybe<Scalars["String"]>;
 };
 
@@ -490,6 +504,12 @@ export type HomeQueryQueryVariables = Exact<{
 }>;
 
 export type HomeQueryQuery = { user?: { _id: string } | null };
+
+export type GetUserIdQueryVariables = Exact<{
+  firebaseId: Scalars["ID"];
+}>;
+
+export type GetUserIdQuery = { userByFirebaseId?: { _id: string } | null };
 
 export const HomeQueryDocument = gql`
   query HomeQuery($id: ID!) {
@@ -547,22 +567,78 @@ export type HomeQueryQueryResult = ApolloReactCommon.QueryResult<
   HomeQueryQuery,
   HomeQueryQueryVariables
 >;
+export const GetUserIdDocument = gql`
+  query GetUserId($firebaseId: ID!) {
+    userByFirebaseId(firebaseId: $firebaseId) {
+      _id
+    }
+  }
+`;
+
+/**
+ * __useGetUserIdQuery__
+ *
+ * To run a query within a React component, call `useGetUserIdQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetUserIdQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetUserIdQuery({
+ *   variables: {
+ *      firebaseId: // value for 'firebaseId'
+ *   },
+ * });
+ */
+export function useGetUserIdQuery(
+  baseOptions: ApolloReactHooks.QueryHookOptions<
+    GetUserIdQuery,
+    GetUserIdQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useQuery<GetUserIdQuery, GetUserIdQueryVariables>(
+    GetUserIdDocument,
+    options
+  );
+}
+export function useGetUserIdLazyQuery(
+  baseOptions?: ApolloReactHooks.LazyQueryHookOptions<
+    GetUserIdQuery,
+    GetUserIdQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useLazyQuery<GetUserIdQuery, GetUserIdQueryVariables>(
+    GetUserIdDocument,
+    options
+  );
+}
+export type GetUserIdQueryHookResult = ReturnType<typeof useGetUserIdQuery>;
+export type GetUserIdLazyQueryHookResult = ReturnType<
+  typeof useGetUserIdLazyQuery
+>;
+export type GetUserIdQueryResult = ApolloReactCommon.QueryResult<
+  GetUserIdQuery,
+  GetUserIdQueryVariables
+>;
 import { ObjectId } from "mongodb";
 export type UserDbObject = {
   _id: ObjectId;
-  bio: string;
+  bio?: Maybe<string>;
   candidateData?: Maybe<UserCandidateDataDbObject>;
   education: Array<UserEducationDbObject>;
-  email: string;
+  email?: Maybe<string>;
   experience: Array<UserExperienceDbObject>;
   firebaseId: string;
   github?: Maybe<string>;
   linkedin?: Maybe<string>;
-  name: string;
-  oneLiner: string;
+  name?: Maybe<string>;
+  oneLiner?: Maybe<string>;
   referredFrom?: Maybe<string>;
   twitter?: Maybe<string>;
-  username: string;
+  username?: Maybe<string>;
   website?: Maybe<string>;
 };
 
@@ -707,9 +783,10 @@ export type ResolversTypes = ResolversObject<{
   String: ResolverTypeWrapper<Scalars["String"]>;
   CareerExperience: CareerExperience;
   Country: Country;
-  CreateUserInput: CreateUserInput;
   Ethnicity: Ethnicity;
+  FinalizeUserInput: FinalizeUserInput;
   Gender: Gender;
+  InitializeUserInput: InitializeUserInput;
   Mutation: ResolverTypeWrapper<{}>;
   ID: ResolverTypeWrapper<Scalars["ID"]>;
   Query: ResolverTypeWrapper<{}>;
@@ -730,7 +807,8 @@ export type ResolversTypes = ResolversObject<{
 export type ResolversParentTypes = ResolversObject<{
   AdditionalEntityFields: AdditionalEntityFields;
   String: Scalars["String"];
-  CreateUserInput: CreateUserInput;
+  FinalizeUserInput: FinalizeUserInput;
+  InitializeUserInput: InitializeUserInput;
   Mutation: {};
   ID: Scalars["ID"];
   Query: {};
@@ -751,7 +829,7 @@ export type UnionDirectiveArgs = {
 export type UnionDirectiveResolver<
   Result,
   Parent,
-  ContextType = any,
+  ContextType = GraphQlContext,
   Args = UnionDirectiveArgs
 > = DirectiveResolverFn<Result, Parent, ContextType, Args>;
 
@@ -763,7 +841,7 @@ export type AbstractEntityDirectiveArgs = {
 export type AbstractEntityDirectiveResolver<
   Result,
   Parent,
-  ContextType = any,
+  ContextType = GraphQlContext,
   Args = AbstractEntityDirectiveArgs
 > = DirectiveResolverFn<Result, Parent, ContextType, Args>;
 
@@ -775,7 +853,7 @@ export type EntityDirectiveArgs = {
 export type EntityDirectiveResolver<
   Result,
   Parent,
-  ContextType = any,
+  ContextType = GraphQlContext,
   Args = EntityDirectiveArgs
 > = DirectiveResolverFn<Result, Parent, ContextType, Args>;
 
@@ -786,7 +864,7 @@ export type ColumnDirectiveArgs = {
 export type ColumnDirectiveResolver<
   Result,
   Parent,
-  ContextType = any,
+  ContextType = GraphQlContext,
   Args = ColumnDirectiveArgs
 > = DirectiveResolverFn<Result, Parent, ContextType, Args>;
 
@@ -795,7 +873,7 @@ export type IdDirectiveArgs = {};
 export type IdDirectiveResolver<
   Result,
   Parent,
-  ContextType = any,
+  ContextType = GraphQlContext,
   Args = IdDirectiveArgs
 > = DirectiveResolverFn<Result, Parent, ContextType, Args>;
 
@@ -806,7 +884,7 @@ export type LinkDirectiveArgs = {
 export type LinkDirectiveResolver<
   Result,
   Parent,
-  ContextType = any,
+  ContextType = GraphQlContext,
   Args = LinkDirectiveArgs
 > = DirectiveResolverFn<Result, Parent, ContextType, Args>;
 
@@ -815,7 +893,7 @@ export type EmbeddedDirectiveArgs = {};
 export type EmbeddedDirectiveResolver<
   Result,
   Parent,
-  ContextType = any,
+  ContextType = GraphQlContext,
   Args = EmbeddedDirectiveArgs
 > = DirectiveResolverFn<Result, Parent, ContextType, Args>;
 
@@ -826,19 +904,25 @@ export type MapDirectiveArgs = {
 export type MapDirectiveResolver<
   Result,
   Parent,
-  ContextType = any,
+  ContextType = GraphQlContext,
   Args = MapDirectiveArgs
 > = DirectiveResolverFn<Result, Parent, ContextType, Args>;
 
 export type MutationResolvers<
-  ContextType = any,
+  ContextType = GraphQlContext,
   ParentType extends ResolversParentTypes["Mutation"] = ResolversParentTypes["Mutation"]
 > = ResolversObject<{
-  createUser?: Resolver<
+  finalizeUser?: Resolver<
     ResolversTypes["User"],
     ParentType,
     ContextType,
-    RequireFields<MutationCreateUserArgs, "user">
+    RequireFields<MutationFinalizeUserArgs, "user">
+  >;
+  initializeUser?: Resolver<
+    ResolversTypes["User"],
+    ParentType,
+    ContextType,
+    Partial<MutationInitializeUserArgs>
   >;
   updateUser?: Resolver<
     ResolversTypes["User"],
@@ -849,7 +933,7 @@ export type MutationResolvers<
 }>;
 
 export type QueryResolvers<
-  ContextType = any,
+  ContextType = GraphQlContext,
   ParentType extends ResolversParentTypes["Query"] = ResolversParentTypes["Query"]
 > = ResolversObject<{
   user?: Resolver<
@@ -858,14 +942,20 @@ export type QueryResolvers<
     ContextType,
     RequireFields<QueryUserArgs, "id">
   >;
+  userByFirebaseId?: Resolver<
+    Maybe<ResolversTypes["User"]>,
+    ParentType,
+    ContextType,
+    RequireFields<QueryUserByFirebaseIdArgs, "firebaseId">
+  >;
 }>;
 
 export type UserResolvers<
-  ContextType = any,
+  ContextType = GraphQlContext,
   ParentType extends ResolversParentTypes["User"] = ResolversParentTypes["User"]
 > = ResolversObject<{
   _id?: Resolver<ResolversTypes["ID"], ParentType, ContextType>;
-  bio?: Resolver<ResolversTypes["String"], ParentType, ContextType>;
+  bio?: Resolver<Maybe<ResolversTypes["String"]>, ParentType, ContextType>;
   candidateData?: Resolver<
     Maybe<ResolversTypes["UserCandidateData"]>,
     ParentType,
@@ -876,7 +966,7 @@ export type UserResolvers<
     ParentType,
     ContextType
   >;
-  email?: Resolver<ResolversTypes["String"], ParentType, ContextType>;
+  email?: Resolver<Maybe<ResolversTypes["String"]>, ParentType, ContextType>;
   experience?: Resolver<
     Array<ResolversTypes["UserExperience"]>,
     ParentType,
@@ -885,21 +975,21 @@ export type UserResolvers<
   firebaseId?: Resolver<ResolversTypes["String"], ParentType, ContextType>;
   github?: Resolver<Maybe<ResolversTypes["String"]>, ParentType, ContextType>;
   linkedin?: Resolver<Maybe<ResolversTypes["String"]>, ParentType, ContextType>;
-  name?: Resolver<ResolversTypes["String"], ParentType, ContextType>;
-  oneLiner?: Resolver<ResolversTypes["String"], ParentType, ContextType>;
+  name?: Resolver<Maybe<ResolversTypes["String"]>, ParentType, ContextType>;
+  oneLiner?: Resolver<Maybe<ResolversTypes["String"]>, ParentType, ContextType>;
   referredFrom?: Resolver<
     Maybe<ResolversTypes["ReferralMethod"]>,
     ParentType,
     ContextType
   >;
   twitter?: Resolver<Maybe<ResolversTypes["String"]>, ParentType, ContextType>;
-  username?: Resolver<ResolversTypes["String"], ParentType, ContextType>;
+  username?: Resolver<Maybe<ResolversTypes["String"]>, ParentType, ContextType>;
   website?: Resolver<Maybe<ResolversTypes["String"]>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
 export type UserCandidateDataResolvers<
-  ContextType = any,
+  ContextType = GraphQlContext,
   ParentType extends ResolversParentTypes["UserCandidateData"] = ResolversParentTypes["UserCandidateData"]
 > = ResolversObject<{
   careerExperience?: Resolver<
@@ -929,7 +1019,7 @@ export type UserCandidateDataResolvers<
 }>;
 
 export type UserEducationResolvers<
-  ContextType = any,
+  ContextType = GraphQlContext,
   ParentType extends ResolversParentTypes["UserEducation"] = ResolversParentTypes["UserEducation"]
 > = ResolversObject<{
   degree?: Resolver<ResolversTypes["String"], ParentType, ContextType>;
@@ -945,7 +1035,7 @@ export type UserEducationResolvers<
 }>;
 
 export type UserExperienceResolvers<
-  ContextType = any,
+  ContextType = GraphQlContext,
   ParentType extends ResolversParentTypes["UserExperience"] = ResolversParentTypes["UserExperience"]
 > = ResolversObject<{
   companyName?: Resolver<ResolversTypes["String"], ParentType, ContextType>;
@@ -961,7 +1051,7 @@ export type UserExperienceResolvers<
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type Resolvers<ContextType = any> = ResolversObject<{
+export type Resolvers<ContextType = GraphQlContext> = ResolversObject<{
   Mutation?: MutationResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
   User?: UserResolvers<ContextType>;
@@ -970,7 +1060,7 @@ export type Resolvers<ContextType = any> = ResolversObject<{
   UserExperience?: UserExperienceResolvers<ContextType>;
 }>;
 
-export type DirectiveResolvers<ContextType = any> = ResolversObject<{
+export type DirectiveResolvers<ContextType = GraphQlContext> = ResolversObject<{
   union?: UnionDirectiveResolver<any, any, ContextType>;
   abstractEntity?: AbstractEntityDirectiveResolver<any, any, ContextType>;
   entity?: EntityDirectiveResolver<any, any, ContextType>;

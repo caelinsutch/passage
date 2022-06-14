@@ -18,6 +18,7 @@ generates:
       - add:
           content: '/* eslint-disable */'
     config:
+      contextType: "pages/api/graphql#GraphQlContext"
       reactApolloVersion: 2
       withHooks: true # We will be using React Hooks so we disable React Components
       skipTypename: true
