@@ -20,6 +20,10 @@
       "@/Api": ["./src/Api"],
       "@/Generated": ["src/Generated"],
       "@/Utils": ["src/Utils"],
+      "@/Utils/*": ["src/Utils/*"],
+      "@/Images/*": ["src/Images/*"],
+      "@/Theme": ["src/Theme"],
+      "@/Components": ["src/Components"],
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
