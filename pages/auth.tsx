@@ -13,7 +13,7 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
   return { props: {} };
 };
 
-const Join: NextPage = () => (
+const Auth: NextPage = () => (
   <PageContainer>
     <Flex direction={{ base: "column", md: "row" }} minH="100vh">
       <Box flex={1}>
@@ -60,4 +60,4 @@ const Join: NextPage = () => (
   </PageContainer>
 );
 
-export default Join;
+export default Auth;

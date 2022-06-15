@@ -13,10 +13,20 @@ const colors = {
   },
 };
 
+const layerStyles = {
+  card: {
+    background: "rgba(255, 255, 255, 0.4)",
+    boxShadow: "0px 4px 64px rgba(0, 0, 0, 0.1)",
+    backdropFilter: "blur(100px)",
+    borderRadius: 8,
+  },
+};
+
 const theme = extendTheme({
   fonts: {
     heading: "Syne, sans-serif",
   },
+  layerStyles,
   colors,
   styles: {
     global: (props: any) => ({
