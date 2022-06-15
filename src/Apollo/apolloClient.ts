@@ -1,9 +1,14 @@
 import { useMemo } from "react";
-import { ApolloClient, NormalizedCacheObject } from "@apollo/client";
+import {
+  ApolloClient,
+  createHttpLink,
+  NormalizedCacheObject,
+} from "@apollo/client";
 import { isEqual } from "lodash";
 import merge from "deepmerge";
 import { AppProps } from "next/app";
-import { backendUrl } from "../Constants";
+import { setContext } from "@apollo/client/link/context";
+import { getAuth } from "@firebase/auth";
 import cache from "./cache";
 
 const isServer = typeof window === "undefined";
@@ -11,10 +16,26 @@ export const APOLLO_STATE_PROP_NAME = "__APOLLO_STATE__";
 
 let apolloClient: ApolloClient<any>;
 
+const httpLink = createHttpLink({
+  uri: "/api/graphql",
+});
+
+const authLink = setContext(async (_, { headers }) => {
+  const auth = await getAuth();
+
+  const token = await auth?.currentUser?.getIdToken();
+  return {
+    headers: {
+      ...headers,
+      authorization: token ? `Bearer ${token}` : "",
+    },
+  };
+});
+
 export const createApolloClient = () =>
   new ApolloClient({
     ssrMode: isServer,
-    uri: backendUrl,
+    link: authLink.concat(httpLink),
     cache: cache.restore(apolloClient?.extract() || {}),
   });
 

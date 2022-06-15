@@ -44,7 +44,7 @@ const EnterCode: React.FC<EnterCodeProps> = ({ isLoading, onSubmit }) => {
         }}
       />
       <Button mt={8} colorScheme="purple" type="submit" isLoading={isLoading}>
-        YOU"RE IN
+        ENTER CODE
       </Button>
     </form>
   );

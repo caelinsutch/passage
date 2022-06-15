@@ -7,7 +7,7 @@ import { GetUserIdDocument, GetUserIdQuery } from "@/Generated";
 
 export const serverSideQuery = gql`
   query GetUserId($firebaseId: ID!) {
-    userByFirebaseId(firebaseId: $firebaseId) {
+    userSearch(firebaseId: $firebaseId) {
       _id
     }
   }
@@ -34,7 +34,7 @@ const authorizeServerSide = async (
 
     return {
       firebaseId,
-      userId: res.data?.userByFirebaseId?._id,
+      userId: res.data?.userSearch?._id,
     };
   } catch (err) {
     return undefined;

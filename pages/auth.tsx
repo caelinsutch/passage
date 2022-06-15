@@ -45,10 +45,10 @@ const Auth: NextPage = () => (
         flex={1}
         justifyContent="center"
         alignItems="center"
-        height="100vh"
+        minH="100vh"
         direction="column"
       >
-        <Box maxW={400} textAlign="center" mb={24}>
+        <Box maxW={400} textAlign="center" mb={24} py={8}>
           <Illustration name="LogoIcon" mx="auto" mb={8} />
           <Heading size="xl" textAlign="center" mb={8}>
             Ready to Start Your Journey in Web3?

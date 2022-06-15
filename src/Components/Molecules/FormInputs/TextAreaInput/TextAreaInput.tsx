@@ -5,39 +5,27 @@ import {
   FormErrorMessage,
   FormHelperText,
   FormLabel,
-  Input,
-  InputGroup,
-  InputGroupProps,
-  InputLeftElement,
-  InputProps,
+  Textarea,
+  TextareaProps,
 } from "@chakra-ui/react";
 
-type FormInputProps = {
+type TextAreaInputProps = {
   label?: string;
   error?: string;
   helperText?: string;
-  inputGroupProps?: InputGroupProps;
-  leftElement?: React.ReactNode;
-  inputProps: InputProps;
+  textAreaProps: TextareaProps;
 } & FormControlProps;
 
-const FormInput: React.FC<FormInputProps> = ({
+const TextAreaInput: React.FC<TextAreaInputProps> = ({
   label,
   helperText,
   error,
-  inputProps,
-  inputGroupProps,
-  leftElement,
+  textAreaProps,
   ...props
 }) => (
   <FormControl isInvalid={Boolean(error)} {...props}>
     <FormLabel>{label}</FormLabel>
-    <InputGroup {...inputGroupProps}>
-      {Boolean(leftElement) && (
-        <InputLeftElement>{leftElement}</InputLeftElement>
-      )}
-      <Input {...inputProps} />
-    </InputGroup>
+    <Textarea {...textAreaProps} />
     {Boolean(helperText) && (
       <FormHelperText textAlign="left">{helperText}</FormHelperText>
     )}
@@ -45,4 +33,4 @@ const FormInput: React.FC<FormInputProps> = ({
   </FormControl>
 );
 
-export default FormInput;
+export default TextAreaInput;

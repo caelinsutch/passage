@@ -238,6 +238,16 @@ export enum Country {
   Zimbabwe = "Zimbabwe",
 }
 
+export type CreateUserInput = {
+  bio: Scalars["String"];
+  email: Scalars["String"];
+  firebaseId: Scalars["String"];
+  name: Scalars["String"];
+  oneLiner: Scalars["String"];
+  phone: Scalars["String"];
+  username: Scalars["String"];
+};
+
 export enum Ethnicity {
   AfricanAmerican = "AfricanAmerican",
   AmericanIndian = "AmericanIndian",
@@ -252,37 +262,19 @@ export enum Ethnicity {
   White = "White",
 }
 
-export type FinalizeUserInput = {
-  bio: Scalars["String"];
-  email: Scalars["String"];
-  name: Scalars["String"];
-  oneLiner: Scalars["String"];
-  username: Scalars["String"];
-};
-
 export enum Gender {
   Female = "Female",
   Male = "Male",
   Other = "Other",
 }
 
-export type InitializeUserInput = {
-  firebaseId: Scalars["String"];
-  phone: Scalars["String"];
-};
-
 export type Mutation = {
-  finalizeUser: User;
-  initializeUser: User;
+  createUser: User;
   updateUser: User;
 };
 
-export type MutationFinalizeUserArgs = {
-  user: FinalizeUserInput;
-};
-
-export type MutationInitializeUserArgs = {
-  user?: InputMaybe<InitializeUserInput>;
+export type MutationCreateUserArgs = {
+  user: CreateUserInput;
 };
 
 export type MutationUpdateUserArgs = {
@@ -292,15 +284,16 @@ export type MutationUpdateUserArgs = {
 
 export type Query = {
   user?: Maybe<User>;
-  userByFirebaseId?: Maybe<User>;
+  userSearch?: Maybe<User>;
 };
 
 export type QueryUserArgs = {
   id: Scalars["ID"];
 };
 
-export type QueryUserByFirebaseIdArgs = {
-  firebaseId: Scalars["ID"];
+export type QueryUserSearchArgs = {
+  firebaseId?: InputMaybe<Scalars["ID"]>;
+  phone?: InputMaybe<Scalars["String"]>;
 };
 
 export enum ReferralMethod {
@@ -456,19 +449,20 @@ export type UpdateUserInput = {
 
 export type User = {
   _id: Scalars["ID"];
-  bio?: Maybe<Scalars["String"]>;
+  bio: Scalars["String"];
   candidateData?: Maybe<UserCandidateData>;
   education: Array<UserEducation>;
-  email?: Maybe<Scalars["String"]>;
+  email: Scalars["String"];
   experience: Array<UserExperience>;
   firebaseId: Scalars["String"];
   github?: Maybe<Scalars["String"]>;
   linkedin?: Maybe<Scalars["String"]>;
-  name?: Maybe<Scalars["String"]>;
-  oneLiner?: Maybe<Scalars["String"]>;
+  name: Scalars["String"];
+  oneLiner: Scalars["String"];
+  phone: Scalars["String"];
   referredFrom?: Maybe<ReferralMethod>;
   twitter?: Maybe<Scalars["String"]>;
-  username?: Maybe<Scalars["String"]>;
+  username: Scalars["String"];
   website?: Maybe<Scalars["String"]>;
 };
 
@@ -505,12 +499,56 @@ export type HomeQueryQueryVariables = Exact<{
 
 export type HomeQueryQuery = { user?: { _id: string } | null };
 
+export type CreateUserMutationVariables = Exact<{
+  user: CreateUserInput;
+}>;
+
+export type CreateUserMutation = {
+  createUser: {
+    _id: string;
+    firebaseId: string;
+    phone: string;
+    name: string;
+    username: string;
+    oneLiner: string;
+    bio: string;
+    email: string;
+  };
+};
+
+export type SearchUserQueryVariables = Exact<{
+  phone: Scalars["String"];
+}>;
+
+export type SearchUserQuery = { userSearch?: { _id: string } | null };
+
+export type UserBaseInfoFragment = {
+  firebaseId: string;
+  phone: string;
+  name: string;
+  oneLiner: string;
+  username: string;
+  bio: string;
+  email: string;
+};
+
 export type GetUserIdQueryVariables = Exact<{
   firebaseId: Scalars["ID"];
 }>;
 
-export type GetUserIdQuery = { userByFirebaseId?: { _id: string } | null };
+export type GetUserIdQuery = { userSearch?: { _id: string } | null };
 
+export const UserBaseInfoFragmentDoc = gql`
+  fragment UserBaseInfo on User {
+    firebaseId
+    phone
+    name
+    oneLiner
+    username
+    bio
+    email
+  }
+`;
 export const HomeQueryDocument = gql`
   query HomeQuery($id: ID!) {
     user(id: $id) {
@@ -567,9 +605,122 @@ export type HomeQueryQueryResult = ApolloReactCommon.QueryResult<
   HomeQueryQuery,
   HomeQueryQueryVariables
 >;
+export const CreateUserDocument = gql`
+  mutation CreateUser($user: CreateUserInput!) {
+    createUser(user: $user) {
+      _id
+      firebaseId
+      phone
+      name
+      username
+      oneLiner
+      bio
+      email
+    }
+  }
+`;
+export type CreateUserMutationFn = ApolloReactCommon.MutationFunction<
+  CreateUserMutation,
+  CreateUserMutationVariables
+>;
+
+/**
+ * __useCreateUserMutation__
+ *
+ * To run a mutation, you first call `useCreateUserMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateUserMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createUserMutation, { data, loading, error }] = useCreateUserMutation({
+ *   variables: {
+ *      user: // value for 'user'
+ *   },
+ * });
+ */
+export function useCreateUserMutation(
+  baseOptions?: ApolloReactHooks.MutationHookOptions<
+    CreateUserMutation,
+    CreateUserMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useMutation<
+    CreateUserMutation,
+    CreateUserMutationVariables
+  >(CreateUserDocument, options);
+}
+export type CreateUserMutationHookResult = ReturnType<
+  typeof useCreateUserMutation
+>;
+export type CreateUserMutationResult =
+  ApolloReactCommon.MutationResult<CreateUserMutation>;
+export type CreateUserMutationOptions = ApolloReactCommon.BaseMutationOptions<
+  CreateUserMutation,
+  CreateUserMutationVariables
+>;
+export const SearchUserDocument = gql`
+  query SearchUser($phone: String!) {
+    userSearch(phone: $phone) {
+      _id
+    }
+  }
+`;
+
+/**
+ * __useSearchUserQuery__
+ *
+ * To run a query within a React component, call `useSearchUserQuery` and pass it any options that fit your needs.
+ * When your component renders, `useSearchUserQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useSearchUserQuery({
+ *   variables: {
+ *      phone: // value for 'phone'
+ *   },
+ * });
+ */
+export function useSearchUserQuery(
+  baseOptions: ApolloReactHooks.QueryHookOptions<
+    SearchUserQuery,
+    SearchUserQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useQuery<SearchUserQuery, SearchUserQueryVariables>(
+    SearchUserDocument,
+    options
+  );
+}
+export function useSearchUserLazyQuery(
+  baseOptions?: ApolloReactHooks.LazyQueryHookOptions<
+    SearchUserQuery,
+    SearchUserQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return ApolloReactHooks.useLazyQuery<
+    SearchUserQuery,
+    SearchUserQueryVariables
+  >(SearchUserDocument, options);
+}
+export type SearchUserQueryHookResult = ReturnType<typeof useSearchUserQuery>;
+export type SearchUserLazyQueryHookResult = ReturnType<
+  typeof useSearchUserLazyQuery
+>;
+export type SearchUserQueryResult = ApolloReactCommon.QueryResult<
+  SearchUserQuery,
+  SearchUserQueryVariables
+>;
 export const GetUserIdDocument = gql`
   query GetUserId($firebaseId: ID!) {
-    userByFirebaseId(firebaseId: $firebaseId) {
+    userSearch(firebaseId: $firebaseId) {
       _id
     }
   }
@@ -626,19 +777,20 @@ export type GetUserIdQueryResult = ApolloReactCommon.QueryResult<
 import { ObjectId } from "mongodb";
 export type UserDbObject = {
   _id: ObjectId;
-  bio?: Maybe<string>;
+  bio: string;
   candidateData?: Maybe<UserCandidateDataDbObject>;
   education: Array<UserEducationDbObject>;
-  email?: Maybe<string>;
+  email: string;
   experience: Array<UserExperienceDbObject>;
   firebaseId: string;
   github?: Maybe<string>;
   linkedin?: Maybe<string>;
-  name?: Maybe<string>;
-  oneLiner?: Maybe<string>;
+  name: string;
+  oneLiner: string;
+  phone: string;
   referredFrom?: Maybe<string>;
   twitter?: Maybe<string>;
-  username?: Maybe<string>;
+  username: string;
   website?: Maybe<string>;
 };
 
@@ -783,10 +935,9 @@ export type ResolversTypes = ResolversObject<{
   String: ResolverTypeWrapper<Scalars["String"]>;
   CareerExperience: CareerExperience;
   Country: Country;
+  CreateUserInput: CreateUserInput;
   Ethnicity: Ethnicity;
-  FinalizeUserInput: FinalizeUserInput;
   Gender: Gender;
-  InitializeUserInput: InitializeUserInput;
   Mutation: ResolverTypeWrapper<{}>;
   ID: ResolverTypeWrapper<Scalars["ID"]>;
   Query: ResolverTypeWrapper<{}>;
@@ -807,8 +958,7 @@ export type ResolversTypes = ResolversObject<{
 export type ResolversParentTypes = ResolversObject<{
   AdditionalEntityFields: AdditionalEntityFields;
   String: Scalars["String"];
-  FinalizeUserInput: FinalizeUserInput;
-  InitializeUserInput: InitializeUserInput;
+  CreateUserInput: CreateUserInput;
   Mutation: {};
   ID: Scalars["ID"];
   Query: {};
@@ -912,17 +1062,11 @@ export type MutationResolvers<
   ContextType = GraphQlContext,
   ParentType extends ResolversParentTypes["Mutation"] = ResolversParentTypes["Mutation"]
 > = ResolversObject<{
-  finalizeUser?: Resolver<
+  createUser?: Resolver<
     ResolversTypes["User"],
     ParentType,
     ContextType,
-    RequireFields<MutationFinalizeUserArgs, "user">
-  >;
-  initializeUser?: Resolver<
-    ResolversTypes["User"],
-    ParentType,
-    ContextType,
-    Partial<MutationInitializeUserArgs>
+    RequireFields<MutationCreateUserArgs, "user">
   >;
   updateUser?: Resolver<
     ResolversTypes["User"],
@@ -942,11 +1086,11 @@ export type QueryResolvers<
     ContextType,
     RequireFields<QueryUserArgs, "id">
   >;
-  userByFirebaseId?: Resolver<
+  userSearch?: Resolver<
     Maybe<ResolversTypes["User"]>,
     ParentType,
     ContextType,
-    RequireFields<QueryUserByFirebaseIdArgs, "firebaseId">
+    Partial<QueryUserSearchArgs>
   >;
 }>;
 
@@ -955,7 +1099,7 @@ export type UserResolvers<
   ParentType extends ResolversParentTypes["User"] = ResolversParentTypes["User"]
 > = ResolversObject<{
   _id?: Resolver<ResolversTypes["ID"], ParentType, ContextType>;
-  bio?: Resolver<Maybe<ResolversTypes["String"]>, ParentType, ContextType>;
+  bio?: Resolver<ResolversTypes["String"], ParentType, ContextType>;
   candidateData?: Resolver<
     Maybe<ResolversTypes["UserCandidateData"]>,
     ParentType,
@@ -966,7 +1110,7 @@ export type UserResolvers<
     ParentType,
     ContextType
   >;
-  email?: Resolver<Maybe<ResolversTypes["String"]>, ParentType, ContextType>;
+  email?: Resolver<ResolversTypes["String"], ParentType, ContextType>;
   experience?: Resolver<
     Array<ResolversTypes["UserExperience"]>,
     ParentType,
@@ -975,15 +1119,16 @@ export type UserResolvers<
   firebaseId?: Resolver<ResolversTypes["String"], ParentType, ContextType>;
   github?: Resolver<Maybe<ResolversTypes["String"]>, ParentType, ContextType>;
   linkedin?: Resolver<Maybe<ResolversTypes["String"]>, ParentType, ContextType>;
-  name?: Resolver<Maybe<ResolversTypes["String"]>, ParentType, ContextType>;
-  oneLiner?: Resolver<Maybe<ResolversTypes["String"]>, ParentType, ContextType>;
+  name?: Resolver<ResolversTypes["String"], ParentType, ContextType>;
+  oneLiner?: Resolver<ResolversTypes["String"], ParentType, ContextType>;
+  phone?: Resolver<ResolversTypes["String"], ParentType, ContextType>;
   referredFrom?: Resolver<
     Maybe<ResolversTypes["ReferralMethod"]>,
     ParentType,
     ContextType
   >;
   twitter?: Resolver<Maybe<ResolversTypes["String"]>, ParentType, ContextType>;
-  username?: Resolver<Maybe<ResolversTypes["String"]>, ParentType, ContextType>;
+  username?: Resolver<ResolversTypes["String"], ParentType, ContextType>;
   website?: Resolver<Maybe<ResolversTypes["String"]>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;

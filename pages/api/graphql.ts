@@ -1,6 +1,6 @@
 import { ApolloServer } from "apollo-server-micro";
 import Cors from "micro-cors";
-import { getAuth } from "firebase-admin/lib/auth";
+import { auth } from "firebase-admin";
 import typeDefs from "../../src/GraphQl";
 import { resolvers } from "@/Api";
 
@@ -16,7 +16,7 @@ const server = new ApolloServer({
   context: async ({ req }): Promise<GraphQlContext> => {
     const token = req.headers.authorization;
     if (!token) return {};
-    const { uid: firebaseId } = await getAuth().verifyIdToken(token);
+    const { uid: firebaseId } = await auth().verifyIdToken(token);
 
     return {
       firebaseId,

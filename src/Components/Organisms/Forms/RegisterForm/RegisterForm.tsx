@@ -10,18 +10,24 @@ import {
   signInWithPhoneNumber,
 } from "@firebase/auth";
 import { EnterCode, EnterPhone } from "./Components";
+import EnterBaseInfo, { BaseInfoData } from "./Components/EnterBaseInfo";
+import { useCreateUserMutation, useSearchUserLazyQuery } from "@/Generated";
 
 const RegisterForm: React.FC = () => {
   const toast = useToast();
   const router = useRouter();
 
-  const [stage, setStage] = useState<"phone" | "code">("phone");
+  const [createUser, { loading }] = useCreateUserMutation();
+  const [searchUser] = useSearchUserLazyQuery();
 
-  // const [phoneNumber, setPhoneNumber] = useState<string>("");
-  // const [firebaseId, setFirebaseId] = useState<string>("");
+  const [stage, setStage] = useState<"phone" | "code" | "info">("phone");
+
+  const [phoneNumber, setPhoneNumber] = useState<string>("");
+  const [firebaseId, setFirebaseId] = useState<string>("");
 
   const [sendCodeLoading, setSendCodeLoading] = useState(false);
   const [submitCodeLoading, setSubmitCodeLoading] = useState(false);
+
   const recaptchaVerifier = useRef<RecaptchaVerifier>();
   const confirmationResult = useRef<ConfirmationResult>();
 
@@ -29,7 +35,10 @@ const RegisterForm: React.FC = () => {
     if (!recaptchaVerifier?.current) return;
     setSendCodeLoading(true);
     try {
-      // setPhoneNumber(phone);
+      const res = await searchUser({ variables: { phone } });
+      if (res.data?.userSearch?._id)
+        throw new Error("Phone already registered!");
+      setPhoneNumber(phone);
       const auth = getAuth();
       confirmationResult.current = await signInWithPhoneNumber(
         auth,
@@ -72,12 +81,11 @@ const RegisterForm: React.FC = () => {
           confirmationResult.current?.verificationId,
           code
         );
-        await signInWithCredential(getAuth(), credential);
-        // setFirebaseId(res.user.uid);
+        const res = await signInWithCredential(getAuth(), credential);
+        setFirebaseId(res.user.uid);
       } else {
-        // setFirebaseId(user.uid);
+        setFirebaseId(user.uid);
       }
-      await router.replace("/dashboard");
     } catch (e: any) {
       toast({
         title: "Error verifying code!",
@@ -86,6 +94,24 @@ const RegisterForm: React.FC = () => {
       });
     }
     setSubmitCodeLoading(false);
+    setStage("info");
+  };
+
+  const handleSubmitInfo = async (baseInfo: BaseInfoData) => {
+    try {
+      if (!phoneNumber || !firebaseId)
+        throw new Error("Phone number or Firebase Id missing");
+      await createUser({
+        variables: { user: { phone: phoneNumber, firebaseId, ...baseInfo } },
+      });
+      await router.push("/dashboard");
+    } catch (e: any) {
+      toast({
+        title: "Error finalizing profile!",
+        description: e.toString(),
+        status: "error",
+      });
+    }
   };
 
   return (
@@ -96,6 +122,8 @@ const RegisterForm: React.FC = () => {
           onSubmit={({ phoneNumber: pN }) => handleSendCode(pN)}
           isLoading={sendCodeLoading}
         />
+      ) : stage === "info" ? (
+        <EnterBaseInfo onSubmit={handleSubmitInfo} isLoading={loading} />
       ) : (
         <EnterCode
           onSubmit={({ code }) => handleSubmitCode(code)}

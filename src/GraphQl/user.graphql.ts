@@ -4,11 +4,12 @@ const userGraphql = gql`
   type User @entity {
     _id: ID! @id
     firebaseId: String! @column
-    name: String @column
-    username: String @column
-    oneLiner: String @column
-    bio: String @column
-    email: String @column
+    phone: String! @column
+    name: String! @column
+    username: String! @column
+    oneLiner: String! @column
+    bio: String! @column
+    email: String! @column
     candidateData: UserCandidateData @embedded
     education: [UserEducation!]! @embedded
     experience: [UserExperience!]! @embedded
@@ -46,19 +47,25 @@ const userGraphql = gql`
     description: String @column
   }
 
-  input InitializeUserInput {
-    firebaseId: String!
-    phone: String!
+  fragment UserBaseInfo on User {
+    firebaseId
+    phone
+    name
+    oneLiner
+    username
+    bio
+    email
   }
 
-  input FinalizeUserInput {
+  input CreateUserInput {
+    firebaseId: String!
+    phone: String!
     name: String!
     oneLiner: String!
     username: String!
     bio: String!
     email: String!
   }
-
   input UpdateUserInput {
     firebaseId: String
     name: String
